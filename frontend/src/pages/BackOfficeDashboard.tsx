@@ -230,10 +230,12 @@ const BackOfficeDashboard = () => {
                   Liste du personnel
                 </Button>
               </Link>
-              <Button variant="outline" className="w-full justify-start text-gray-300 border-gray-600 hover:bg-gray-800">
-                <Settings className="w-4 h-4 mr-2" />
-                Modifier profils
-              </Button>
+              <Link to="/backoffice/modifierprofils">
+                <Button variant="outline" className="w-full justify-start text-gray-300 border-gray-600 hover:bg-gray-800">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Modifier profils
+                </Button>
+              </Link>
             </CardContent>
           </Card>
 

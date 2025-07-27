@@ -87,10 +87,10 @@ const ValidationMission = () => {
                 <p className="text-sm text-gray-300">Connecté en tant que</p>
                 <p className="font-medium text-white">Manager</p>
               </div>
-              <Button variant="outline" size="sm" className="text-gray-300 border-gray-600 hover:bg-gray-800">
+              {/* <Button variant="outline" size="sm" className="text-gray-300 border-gray-600 hover:bg-gray-800">
                 <User className="w-4 h-4 mr-2" />
                 Profil
-              </Button>
+              </Button> */}
               <Link to="/">
                 <Button variant="outline" size="sm" className="text-red-400 hover:text-red-300 border-red-600 hover:bg-red-900/20">
                   <LogOut className="w-4 h-4 mr-2" />
@@ -105,7 +105,7 @@ const ValidationMission = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="bg-gradient-to-br from-yellow-500 to-orange-500 text-white border-0">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -141,7 +141,7 @@ const ValidationMission = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
 
         {/* Missions Table */}
         <Card className="bg-gray-900/90 border-gray-700">

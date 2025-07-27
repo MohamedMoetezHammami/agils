@@ -42,41 +42,30 @@ const ManagerDashboard = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch missions for logged-in user
+  // Fetch missions for logged-in manager (all missions, not just pending)
   useEffect(() => {
     const fetchMissions = async () => {
       setLoading(true);
       setError(null);
       try {
         const token = localStorage.getItem("token");
-        if (!token) throw new Error("Aucun token d'authentification trouvé");
-        
-        const decoded: any = jwtDecode(token);
-        const userId = decoded.id || decoded.userId;
-        if (!userId) throw new Error("ID utilisateur non trouvé dans le token");
-        
-        setUserName(decoded.nom_et_prenom || 'Manager');
-        
-        console.log('Fetching missions for manager ID:', userId);
-        const res = await axios.get(`http://localhost:8010/api/manager/pending-missions?managerId=${userId}`);
-        console.log('API Response:', res.data);
-        
-        if (!Array.isArray(res.data)) {
-          throw new Error('Réponse du serveur invalide: données manquantes');
+        let userId = null;
+        if (token) {
+          try {
+            const decoded: any = jwtDecode(token);
+            userId = decoded.id || decoded.userId || null;
+            setUserName(decoded.nom_et_prenom || 'Manager');
+          } catch (e) {}
         }
-        
+        if (!userId) throw new Error("Utilisateur non authentifié");
+        // Fetch all missions for this manager
+        const res = await axios.get(`http://localhost:8010/api/user-missions?userId=${userId}`);
         setMissions(res.data);
       } catch (err: any) {
-        console.error('Error fetching missions:', err);
-        const errorMessage = err.response?.data?.error || 
-                           err.message || 
-                           "Erreur lors du chargement des missions";
-        setError(errorMessage);
-      } finally {
-        setLoading(false);
+        setError(err.response?.data?.error || err.message || "Erreur lors du chargement des missions");
       }
+      setLoading(false);
     };
-    
     fetchMissions();
   }, []);
 

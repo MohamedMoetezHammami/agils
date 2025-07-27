@@ -187,10 +187,10 @@ const ValidationRemboursements = () => {
                 <p className="text-sm text-gray-300">Connecté en tant que</p>
                 <p className="font-medium text-white">Agent Financier</p>
               </div>
-              <Button variant="outline" size="sm" className="text-gray-300 border-gray-600 hover:bg-gray-800">
+              {/* <Button variant="outline" size="sm" className="text-gray-300 border-gray-600 hover:bg-gray-800">
                 <User className="w-4 h-4 mr-2" />
                 Profil
-              </Button>
+              </Button> */}
               
             </div>
           </div>

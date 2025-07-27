@@ -31,6 +31,32 @@ const MesMissions = () => {
   const [missions, setMissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string>("");
+
+  // Get user role on component mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        setUserRole(decoded.role || "");
+      } catch (e) {
+        console.error('Error decoding token:', e);
+      }
+    }
+  }, []);
+
+  // Function to get the appropriate dashboard URL based on user role
+  const getDashboardUrl = () => {
+    switch (userRole) {
+      case "manager":
+        return "/manager/dashboard";
+      case "employe":
+        return "/frontoffice/dashboard";
+      default:
+        return "/frontoffice/dashboard"; // fallback
+    }
+  };
 
   // Fetch missions for logged-in user
   useEffect(() => {
@@ -92,12 +118,12 @@ const MesMissions = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Link to="/frontoffice/dashboard" className="text-[#cccc00] hover:text-[#ffff00]">
+              <Link to={getDashboardUrl()} className="text-[#cccc00] hover:text-[#ffff00]">
                 <ArrowLeft className="w-6 h-6" />
               </Link>
               <div>
                 <h1 className="text-xl font-bold text-white">Mes Missions</h1>
-                <p className="text-sm text-gray-300">Gestion de vos demandes de mission</p>
+                <p className="text-sm text-gray-300">Liste de vos demandes de mission</p>
               </div>
             </div>
           </div>

@@ -66,6 +66,7 @@ const RetourMission = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userRole, setUserRole] = useState<string>("");
 
   // State for userId and mission dates
   const [userId, setUserId] = useState<string | null>(null);
@@ -76,6 +77,31 @@ const RetourMission = () => {
     heureRetour: '',
     vehicule: '',
   });
+
+  // Get user role on component mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        setUserRole(decoded.role || "");
+      } catch (e) {
+        console.error('Error decoding token:', e);
+      }
+    }
+  }, []);
+
+  // Function to get the appropriate dashboard URL based on user role
+  const getDashboardUrl = () => {
+    switch (userRole) {
+      case "manager":
+        return "/manager/dashboard";
+      case "employe":
+        return "/frontoffice/dashboard";
+      default:
+        return "/frontoffice/dashboard"; // fallback
+    }
+  };
 
   // Get userId from JWT on mount
   useEffect(() => {
@@ -199,7 +225,7 @@ const RetourMission = () => {
           : "Le retour de mission a été enregistré avec succès.",
       });
       
-      navigate("/frontoffice/dashboard");
+      navigate(getDashboardUrl());
     } catch (error: any) {
       console.error('Error submitting mission return:', error);
       
@@ -246,7 +272,7 @@ const RetourMission = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link
-                to="/frontoffice/dashboard"
+                to={getDashboardUrl()}
                 className="text-orange-500 hover:text-orange-400 transition-colors"
               >
                 <ArrowLeft className="w-6 h-6" />
@@ -794,7 +820,7 @@ const RetourMission = () => {
 
                 {/* Boutons d'action */}
                 <div className="flex justify-end space-x-4 pt-6">
-                  <Link to="/frontoffice/dashboard">
+                  <Link to={getDashboardUrl()}>
                     <Button variant="outline" className="text-gray-300 border-gray-600 hover:bg-gray-800">
                       Annuler
                     </Button>

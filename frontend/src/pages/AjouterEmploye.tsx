@@ -147,7 +147,7 @@ const AjouterEmploye = () => {
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400"
-                  placeholder="email@exemple.com"
+                  placeholder="nom.prenom@agil.com.tn"
                   required
                 />
               </div>

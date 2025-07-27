@@ -57,11 +57,37 @@ type FormData = z.infer<typeof formSchema>;
 const NouvelleMission = () => {
   const [firstAvailableVehicule, setFirstAvailableVehicule] = useState<any>(null);
   const [fetchingVehicule, setFetchingVehicule] = useState(false);
+  const [userRole, setUserRole] = useState<string>("");
 
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [employees, setEmployees] = useState([]);
+
+  // Get user role on component mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        setUserRole(decoded.role || "");
+      } catch (e) {
+        console.error('Error decoding token:', e);
+      }
+    }
+  }, []);
+
+  // Function to get the appropriate dashboard URL based on user role
+  const getDashboardUrl = () => {
+    switch (userRole) {
+      case "manager":
+        return "/manager/dashboard";
+      case "employe":
+        return "/frontoffice/dashboard";
+      default:
+        return "/frontoffice/dashboard"; // fallback
+    }
+  };
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -141,7 +167,7 @@ const NouvelleMission = () => {
         title: "Mission créée avec succès",
         description: "La nouvelle mission a été enregistrée.",
       });
-      navigate("/frontoffice/dashboard");
+      navigate(getDashboardUrl());
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -161,7 +187,7 @@ const NouvelleMission = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link 
-                to="/frontoffice/dashboard" 
+                to={getDashboardUrl()}
                 className="text-orange-500 hover:text-orange-400 transition-colors"
               >
                 <ArrowLeft className="w-6 h-6" />
@@ -397,7 +423,7 @@ const NouvelleMission = () => {
                       render={({ field }) => (
                         <FormItem className="flex items-center gap-4">
                           <FormLabel className="font-semibold text-gray-300 w-24">
-                            Frais de Mission
+                            Avance
                           </FormLabel>
                           <FormControl>
                             <Input 
@@ -592,7 +618,7 @@ const NouvelleMission = () => {
 
                 {/* Action Buttons */}
                 <div className="flex justify-end space-x-4 pt-6">
-                <Link to="/frontoffice/dashboard">
+                <Link to={getDashboardUrl()}>
                   <Button variant="outline" className="text-gray-300 border-gray-600 hover:bg-gray-800">
                     Annuler
                   </Button>

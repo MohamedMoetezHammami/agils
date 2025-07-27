@@ -142,7 +142,7 @@ const FinancialDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="border border-gray-700 bg-gray-900/90 backdrop-blur-sm">
+          {/* <Card className="border border-gray-700 bg-gray-900/90 backdrop-blur-sm">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -164,7 +164,7 @@ const FinancialDashboard = () => {
                 <DollarSign className="w-8 h-8 text-purple-400" />
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Main Actions */}

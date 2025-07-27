@@ -62,50 +62,48 @@ const AddVehicle = () => {
               <Link to="/backoffice/dashboard" className="text-orange-500 hover:text-orange-400">
                 <ArrowLeft className="w-6 h-6" />
               </Link>
-              <Link to="/backoffice/dashboard" className="text-primary hover:text-primary/80">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
-                  <Car className="w-6 h-6 text-background" />
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-600 to-red-600 rounded-lg flex items-center justify-center">
+                  <Car className="w-6 h-6 text-white" />
                 </div>
-              </Link>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">Ajouter un Véhicule</h1>
-                <p className="text-sm text-muted-foreground">Enregistrer un nouveau véhicule dans le parc automobile</p>
+                <div>
+                  <h1 className="text-xl font-bold text-white">Ajouter un Véhicule</h1>
+                  <p className="text-sm text-gray-300">Enregistrer un nouveau véhicule dans le parc automobile</p>
+                </div>
               </div>
             </div>
-
-
           </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center text-foreground">
-                <Car className="w-5 h-5 mr-2 text-primary" />
-                Informations du Véhicule
-              </CardTitle>
-              <CardDescription className="text-muted-foreground">
-                Remplissez tous les champs pour ajouter le véhicule au système
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <Card className="max-w-2xl mx-auto bg-gray-900/90 border-gray-700">
+          <CardHeader>
+            <CardTitle className="flex items-center text-white">
+              <Car className="w-5 h-5 mr-2 text-orange-500" />
+              Informations du Véhicule
+            </CardTitle>
+            <CardDescription className="text-gray-300">
+              Remplissez tous les champs pour ajouter le véhicule au système
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="marque"
                     rules={{ required: "La marque du véhicule est requise" }}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-foreground">Marque de véhicule</FormLabel>
+                        <FormLabel className="text-white">Marque de véhicule</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Ex: Toyota, Renault, Mercedes..."
                             {...field}
-                            className="bg-input border-border text-foreground placeholder:text-muted-foreground"
+                            className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400"
                           />
                         </FormControl>
                         <FormMessage />
@@ -119,12 +117,12 @@ const AddVehicle = () => {
                     rules={{ required: "Le modèle du véhicule est requis" }}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-foreground">Modèle de véhicule</FormLabel>
+                        <FormLabel className="text-white">Modèle de véhicule</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Ex: Corolla, Clio, C-Class..."
                             {...field}
-                            className="bg-input border-border text-foreground placeholder:text-muted-foreground"
+                            className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400"
                           />
                         </FormControl>
                         <FormMessage />
@@ -144,12 +142,12 @@ const AddVehicle = () => {
                     }}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-foreground">Matricule</FormLabel>
+                        <FormLabel className="text-white">Matricule</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Ex: 123 ABC 456"
+                            placeholder="Ex: 123 TUN 456"
                             {...field}
-                            className="bg-input border-border text-foreground placeholder:text-muted-foreground"
+                            className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400"
                           />
                         </FormControl>
                         <FormMessage />
@@ -169,44 +167,43 @@ const AddVehicle = () => {
                     }}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-foreground">Puissance (CV)</FormLabel>
+                        <FormLabel className="text-white">Puissance (CV)</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Ex: 120"
+                            placeholder="Ex: 120 (CV)"
                             type="number"
                             {...field}
-                            className="bg-input border-border text-foreground placeholder:text-muted-foreground"
+                            className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400"
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+                </div>
 
-                  <div className="flex space-x-4 pt-4">
-                    <Button
-                      type="submit"
-                      disabled={isLoading}
-                      className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
-                    >
-                      <Save className="w-4 h-4 mr-2" />
-                      {isLoading ? "Enregistrement..." : "Ajouter le véhicule"}
-                    </Button>
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => navigate("/backoffice/dashboard")}
-                      className="flex-1 border-border text-muted-foreground hover:bg-muted"
-                    >
-                      Annuler
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-        </div>
+                <div className="flex justify-end space-x-4 pt-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate("/backoffice/dashboard")}
+                    className="text-gray-300 border-gray-600 hover:bg-gray-800"
+                  >
+                    Annuler
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="bg-orange-600 hover:bg-orange-700 text-white"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {isLoading ? "Enregistrement..." : "Ajouter le véhicule"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
       </main>
     </div>
   );

@@ -9,7 +9,7 @@ import logo from "@/assets/logo.png";
 
 const Index = () => {
 
-  const [nom_et_prenom, setNom_et_prenom] = useState("");
+  const [id, setId] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +21,7 @@ const Index = () => {
     setError("");
     try {
       const response = await axios.post("http://localhost:8010/api/login", {
-        nom_et_prenom,
+        id,
         motDePasse
       });
       const data = response.data;
@@ -67,17 +67,18 @@ const Index = () => {
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-6">
               <div>
-                <label htmlFor="username" className="block text-gray-300 font-medium mb-2">Nom d'utilisateur</label>
+                <label htmlFor="id" className="block text-gray-300 font-medium mb-2">ID</label>
                 <Input
-                  id="username"
+                  id="id"
                   type="text"
-                  placeholder="Nom d'utilisateur"
-                  value={nom_et_prenom}
-                  onChange={e => setNom_et_prenom(e.target.value)}
+                  placeholder="ID"
+                  value={id}
+                  onChange={e => setId(e.target.value)}
                   className="h-12 bg-gray-800 border-gray-600 text-white placeholder:text-gray-500 focus:border-[#cccc00] focus:ring-[#cccc00]"
                   required
                 />
               </div>
+
               <div>
                 <label htmlFor="password" className="block text-gray-300 font-medium mb-2">Mot de passe</label>
                 <Input

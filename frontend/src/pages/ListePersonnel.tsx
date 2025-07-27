@@ -147,7 +147,7 @@ const ListePersonnel = () => {
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-white">Liste du Personnel</h1>
-                  <p className="text-sm text-gray-300">Gestion des employés</p>
+                  <p className="text-sm text-gray-300">Liste des employés</p>
                 </div>
               </div>
             </div>

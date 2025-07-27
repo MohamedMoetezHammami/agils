@@ -26,6 +26,7 @@ import ListePersonnel from "./pages/ListePersonnel";
 import NotFound from "./pages/NotFound";
 import RetourMission from "./pages/retourMission";
 import SuiviRemboursements from "./pages/SuiviRemboursements";
+import ModifierProfils from "./pages/ModifierProfils";
 
 const queryClient = new QueryClient();
 
@@ -53,7 +54,7 @@ const App = () => (
           <Route path="/backoffice/maintenance" element={<Maintenance />} />
           <Route path="/backoffice/ajouter_employe" element={<AjouterEmploye />} />
           <Route path="/backoffice/liste_personnel" element={<ListePersonnel />} />
-
+          <Route path="/backoffice/modifierprofils" element={<ModifierProfils />} />
 
           <Route path="/manager/login" element={<ManagerLogin />} />
           <Route path="/manager/dashboard" element={<ManagerDashboard />} />

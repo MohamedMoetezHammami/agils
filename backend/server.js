@@ -13,7 +13,7 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root', // change as needed
     password: '', // change as needed
-    database: 'test' // test database
+    database: 'agil' // test database
 });
 
 db.connect((err) => {
@@ -80,7 +80,7 @@ server.put('/api/update-mission-details', (req, res) => {
             // 1. First, get the mission to check if it has a vehicle assigned
             const [mission] = await new Promise((resolve, reject) => {
                 db.query(
-                    'SELECT id, Véhicule_id FROM mission WHERE user_id = ? AND date_mission = ?',
+                    'SELECT id, Véhicule_id, immatriculation FROM mission WHERE user_id = ? AND date_mission = ?',
                     [userId, dateMission],
                     (err, results) => {
                         if (err) reject(err);
@@ -93,11 +93,11 @@ server.put('/api/update-mission-details', (req, res) => {
                 throw new Error('Mission not found');
             }
 
-            // 2. Update the mission details
+            // 2. Update the mission details and set statut_remb to 'En attente'
             await new Promise((resolve, reject) => {
                 db.query(
-                    'UPDATE mission SET Compteur_Départ = ?, Compteur_Arrivée = ?, détail_Frais = ? WHERE id = ?',
-                    [compteurDepart, compteurArrive, JSON.stringify(detailFrais), mission.id],
+                    'UPDATE mission SET Compteur_Départ = ?, Compteur_Arrivée = ?, détail_Frais = ?, statut_remb = ? WHERE id = ?',
+                    [compteurDepart, compteurArrive, JSON.stringify(detailFrais), 'En attente', mission.id],
                     (err) => {
                         if (err) reject(err);
                         else resolve(true);
@@ -105,35 +105,18 @@ server.put('/api/update-mission-details', (req, res) => {
                 );
             });
 
-            // 3. If the mission had a vehicle assigned, check its status and update to 'Disponible' if it's 'En mission'
-            if (mission.vehicule) {
-                // First, check the current status of the vehicle
-                const [vehicle] = await new Promise((resolve, reject) => {
+            // 3. If the mission had a vehicle assigned (Véhicule_id and immatriculation are not null), update vehicle status to 'Disponible'
+            if (mission.Véhicule_id && mission.immatriculation) {
+                await new Promise((resolve, reject) => {
                     db.query(
-                        'SELECT statut FROM vehicule WHERE id = ?',
-                        [mission.Véhicule_id],
-                        (err, results) => {
+                        'UPDATE vehicule SET statut = ? WHERE id = ? AND immatriculation = ? AND statut = ?',
+                        ['Disponible', mission.Véhicule_id, mission.immatriculation, 'En mission'],
+                        (err) => {
                             if (err) reject(err);
-                            else resolve(results);
+                            else resolve(true);
                         }
                     );
                 });
-
-                // Only update if the vehicle is currently 'En mission'
-                if (vehicle && vehicle.statut === 'En mission') {
-                    await new Promise((resolve, reject) => {
-                        db.query(
-                            'UPDATE vehicule SET statut = ? WHERE id = ?',
-                            ['Disponible', mission.Véhicule_id],
-                            (err) => {
-                                if (err) reject(err);
-                                else resolve(true);
-                            }
-                        );
-                    });
-                } else if (vehicle) {
-                    console.log(`Vehicle ${mission.Véhicule_id} status is '${vehicle.statut}', not updating to 'Disponible'`);
-                }
             }
 
             // Commit the transaction
@@ -206,23 +189,23 @@ server.get('/backoffice/parc_automobile', (req, res) => {
 // Login endpoint
 server.post('/api/login', (req, res) => {
     try {
-        const { nom_et_prenom, motDePasse } = req.body;
-        if (!nom_et_prenom || !motDePasse) {
+        const { id, motDePasse } = req.body;
+        if (!id || !motDePasse) {
             return res.status(400).json({ message: 'Nom et prénom et mot de passe sont requis.' });
         }
-        const sql = 'SELECT * FROM users WHERE nom_et_prenom = ?';
-        db.query(sql, [nom_et_prenom], (err, results) => {
+        const sql = 'SELECT * FROM users WHERE id = ?';
+        db.query(sql, [id], (err, results) => {
             if (err) {
                 console.error('[DB ERROR] during user lookup:', err);
                 return res.status(500).json({ message: 'Erreur interne du serveur (DB).' });
             }
             if (!results || results.length === 0) {
-                return res.status(401).json({ message: 'Nom ou mot de passe invalide.' });
+                return res.status(401).json({ message: 'ID ou mot de passe invalide.' });
             }
             const users = results[0];
             // Compare motDePasse directly to the value from the database (e.g., users.motDePasse)
             if (!users.motDePasse || motDePasse !== users.motDePasse) {
-                return res.status(401).json({ message: 'Nom ou mot de passe invalide.' });
+                return res.status(401).json({ message: 'ID ou mot de passe invalide.' });
             }
             try {
                 const token = jwt.sign({ id: users.id, role: users.role }, 'agils123', { expiresIn: '1h' });
@@ -262,8 +245,8 @@ server.post('/api/vehicules', (req, res) => {
     if (!marque || !modele || !matricule || !puissance) {
         return res.status(400).json({ message: "Tous les champs du véhicule sont obligatoires." });
     }
-    const sql = 'INSERT INTO vehicule (id, immatriculation, marque_de_véhicule, modele_de_véhicule, statut, puissance) VALUES (?, ?, ?, ?, ?, ?)';
-    db.query(sql, ['vt0001', matricule, marque, modele, 'Disponible', puissance], (err, result) => {
+    const sql = 'INSERT INTO vehicule (immatriculation, marque_de_véhicule, modele_de_véhicule, statut, puissance) VALUES (?, ?, ?, ?, ?)';
+    db.query(sql, [matricule, marque, modele, 'Disponible', puissance], (err, result) => {
         if (err) {
             console.error('[DB ERROR] during vehicle insert:', err);
             return res.status(500).json({ message: "Erreur lors de l'ajout du véhicule." });
@@ -288,14 +271,14 @@ server.post('/api/missions', (req, res) => {
     let sql, values;
     if (vehicule === 'voiture de service' && immatriculation) {
         sql = `INSERT INTO mission
-            (id, user_id, Véhicule_id, Date_Mission, Date_Sortie, Heure_Sortie, Départ, destination, Date_Retour, Heure_Retour, objet, Frais_de_Mission, statut, immatriculation, vehicule, departement)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        values = ['ms0005', userId, vehicleId, dateMission, dateDepart, heureDepart, depart, destination, dateRetour, heureRetour, objet, fraisMission, 'En attente', immatriculation, vehicule, departement];
+            (user_id, Véhicule_id, Date_Mission, Date_Sortie, Heure_Sortie, Départ, destination, Date_Retour, Heure_Retour, objet, Frais_de_Mission, statut, immatriculation, vehicule, departement)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        values = [userId, vehicleId, dateMission, dateDepart, heureDepart, depart, destination, dateRetour, heureRetour, objet, fraisMission, 'En attente', immatriculation, vehicule, departement];
     } else {
         sql = `INSERT INTO mission
-            (id, user_id, Date_Mission, Date_Sortie, Heure_Sortie, Départ, destination, Date_Retour, Heure_Retour, objet, Frais_de_Mission, statut, vehicule, departement)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        values = ['ms0005', userId, dateMission, dateDepart, heureDepart, depart, destination, dateRetour, heureRetour, objet, fraisMission, 'En attente', vehicule, departement];
+            (user_id, Date_Mission, Date_Sortie, Heure_Sortie, Départ, destination, Date_Retour, Heure_Retour, objet, Frais_de_Mission, statut, vehicule, departement)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        values = [userId, dateMission, dateDepart, heureDepart, depart, destination, dateRetour, heureRetour, objet, fraisMission, 'En attente', vehicule, departement];
     }
 
     // Use transaction if vehicle status needs to be updated
@@ -685,6 +668,31 @@ server.put('/api/financial/update-status/:missionId', (req, res) => {
             missionId: missionId,
             newStatus: statut_remb
         });
+    });
+});
+
+// Update user role and password
+server.put('/api/users/update-profile', (req, res) => {
+    const { userId, role, newPassword } = req.body;
+    if (!userId || !role) {
+        return res.status(400).json({ error: 'userId and role are required' });
+    }
+    let sql, params;
+    if (newPassword) {
+        sql = 'UPDATE users SET role = ?, motDePasse = ? WHERE id = ?';
+        params = [role, newPassword, userId];
+    } else {
+        sql = 'UPDATE users SET role = ? WHERE id = ?';
+        params = [role, userId];
+    }
+    db.query(sql, params, (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error', details: err });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'No user found to update.' });
+        }
+        res.json({ success: true });
     });
 });
 
